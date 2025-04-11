@@ -7,7 +7,7 @@ import { JiraIssue, TrelloCard,TrelloData,JiraData } from '../type';
 interface ProcessedTrelloData {
   type: 'trello';
   cards: TrelloCard[];
-  boards: any[]; // Consider using a more specific type from your type definitions
+  boards: any[]; 
   status: {
     totalCards: number;
     completedCards: number;
@@ -18,7 +18,7 @@ interface ProcessedTrelloData {
 interface ProcessedJiraData {
   type: 'jira';
   issues: JiraIssue[];
-  projects: any[]; // Consider using a more specific type from your type definitions
+  projects: any[];
   stats: {
     totalIssues: number;
     completedIssues: number;
