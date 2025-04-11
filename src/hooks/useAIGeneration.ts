@@ -2,41 +2,68 @@ import { useCallback } from 'react';
 import { useData } from '../contexts/DataContext';
 import { GeneratedReport } from '../type';
 import { generateAIReport } from '../services/aiService';
+import { JiraIssue, TrelloCard,TrelloData,JiraData } from '../type';
+
+interface ProcessedTrelloData {
+  type: 'trello';
+  cards: TrelloCard[];
+  boards: any[]; // Consider using a more specific type from your type definitions
+  status: {
+    totalCards: number;
+    completedCards: number;
+    totalBoards: number;
+  };
+}
+
+interface ProcessedJiraData {
+  type: 'jira';
+  issues: JiraIssue[];
+  projects: any[]; // Consider using a more specific type from your type definitions
+  stats: {
+    totalIssues: number;
+    completedIssues: number;
+    totalProjects: number;
+  };
+}
+type ProcessedData = ProcessedTrelloData | ProcessedJiraData | null;
+
 
 export const useAIGeneration = () => {
   const { state, dispatch } = useData();
 
   // 處理並標準化 API 數據的輔助函數
-  const processApiData = useCallback((platform, data) => {
+  const processApiData = useCallback((platform: 'trello' | 'jira' | '', data: TrelloData | JiraData | undefined): ProcessedData => {
     if (!platform || !data) return null;
     
     // 根據不同平台處理數據
     switch (platform) {
-      case 'trello':
+      case 'trello':{
+        const trelloData = data as TrelloData;
         return {
           type: 'trello',
-          cards: data.cards || [],
-          boards: data.boards || [],
+          cards: trelloData.cards || [],
+          boards: trelloData.boards || [],
           status: {
-            totalCards: data.cards?.length || 0,
-            completedCards: data.cards?.filter(card => card.completed)?.length || 0,
-            totalBoards: data.boards?.length || 0
+            totalCards: trelloData.cards?.length || 0,
+            completedCards: trelloData.cards?.filter((card: TrelloCard) => card.completed)?.length || 0,
+            totalBoards: trelloData.boards?.length || 0
           }
-        };
-        
-      case 'jira':
+        }
+        }
+      case 'jira':{
+        const jiraData = data as JiraData;
         return {
           type: 'jira',
-          issues: data.issues || [],
-          projects: data.projects || [],
+          issues: jiraData.issues || [],
+          projects: jiraData.projects || [],
           stats: {
-            totalIssues: data.issues?.length || 0,
-            completedIssues: data.issues?.filter(issue => 
+            totalIssues: jiraData.issues?.length || 0,
+            completedIssues: jiraData.issues?.filter((issue: JiraIssue) => 
               issue.status === 'Done' || issue.status === 'Closed')?.length || 0,
-            totalProjects: data.projects?.length || 0
+            totalProjects: jiraData.projects?.length || 0
           }
         };
-        
+      }
       default:
         return null;
     }

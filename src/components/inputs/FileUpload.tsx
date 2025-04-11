@@ -45,7 +45,7 @@ const FileUpload: React.FC = () => {
       // 分析工作表結構，取得所有工作表的名稱和基本信息
       const sheets = workbook.SheetNames.map(name => {
         const sheet = workbook.Sheets[name];
-        const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const sheetData: (string | number)[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
         return {
           name,
           rowCount: sheetData.length,

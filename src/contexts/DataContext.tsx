@@ -248,7 +248,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('保存數據到 localStorage 時出錯:', error);
     }
   }, [state.userInput.dailyRecords]);
-  console.log(state)
+  // console.log(state)
 
   return (
     <DataContext.Provider value={{ state, dispatch }}>

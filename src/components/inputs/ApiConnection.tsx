@@ -3,6 +3,7 @@ import { useData } from '../../contexts/DataContext';
 import { connectToTrello, fetchTrelloCards } from '../../services/trelloService';
 import { connectToJira, fetchJiraIssues } from '../../services/jiraService';
 import { AlertCircle } from 'lucide-react';
+import { JiraIssue, TrelloCard } from '../../type';
 
 const ApiConnection: React.FC = () => {
   const { state, dispatch } = useData();
@@ -110,7 +111,7 @@ const ApiConnection: React.FC = () => {
 
     if (platform === 'trello') {
       const totalCards = data.cards.length;
-      const completedCards = data.cards.filter(card => card.completed).length;
+      const completedCards = data.cards.filter((card: TrelloCard) => card.completed).length;
 
       return (
         <div className="mt-4 p-4 bg-blue-50 rounded-md">
@@ -125,7 +126,7 @@ const ApiConnection: React.FC = () => {
     }
     else if (platform === 'jira') {
       const totalIssues = data.issues.length;
-      const completedIssues = data.issues.filter(issue => issue.status === 'Done' || issue.status === 'Closed').length;
+      const completedIssues = data.issues.filter((issue: JiraIssue) => issue.status === 'Done' || issue.status === 'Closed').length;
 
       return (
         <div className="mt-4 p-4 bg-blue-50 rounded-md">

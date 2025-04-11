@@ -1,5 +1,5 @@
 // src/services/aiService.ts
-import { TrelloData } from '../type';
+import { DailyRecordEntry, TrelloData } from '../type';
 import { extractWorkSummary } from './trelloService';
 
 // 模擬與AI服務的交互
@@ -48,7 +48,7 @@ export const generateAIReport = async (inputData: any): Promise<string> => {
 };
 
 // 從每日記錄中提取摘要
-const extractDailyRecordSummary = (dailyRecords: string[]): string => {
+const extractDailyRecordSummary = (dailyRecords: DailyRecordEntry[]): string => {
   // 簡單地返回分段的每日記錄
   
   let summary = '';
@@ -57,7 +57,7 @@ const extractDailyRecordSummary = (dailyRecords: string[]): string => {
     summary = '- 無每日工作記錄';
   } else {
     // 提取每個記錄的摘要
-    dailyRecords.forEach((record, index) => {
+    dailyRecords.forEach((record: DailyRecordEntry, index) => {
       summary += `- 記錄 ${index + 1}: ${record?.content}\n`;
     });
 
