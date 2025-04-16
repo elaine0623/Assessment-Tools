@@ -8,6 +8,7 @@ const loadInitialState = (): AppState => {
     const baseInitialState: AppState = {
       currentTab: 'daily',
       userInput: {
+        userName: '',
         dailyRecords: {},
         apiConnection: { platform: '', apiKey: '', token: '', connected: false },
         fileUpload: { file: null, uploaded: false, parsed: false, data: null }
@@ -30,6 +31,7 @@ const loadInitialState = (): AppState => {
     return {
       currentTab: 'daily',
       userInput: {
+        userName: '',
         dailyRecords: {},
         apiConnection: { platform: '', apiKey: '', token: '', connected: false },
         fileUpload: { file: null, uploaded: false, parsed: false, data: null }
@@ -46,6 +48,7 @@ const initialState = loadInitialState();
 
 // 定義動作類型
 type Action =
+  | { type: 'SET_USER_NAME'; payload: string }
   | { type: 'SET_TAB'; payload: TabType }
   | { type: 'ADD_DAILY_RECORD'; payload: DailyRecordEntry }
   | { type: 'DELETE_DAILY_RECORD'; payload: string } // 日期
@@ -66,6 +69,14 @@ type Action =
 // 定義reducer函數
 function dataReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'SET_USER_NAME':
+      return {
+        ...state,
+        userInput: {
+          ...state.userInput,
+          userName: action.payload
+        }
+      };
     case 'SET_TAB':
       return { ...state, currentTab: action.payload };
     case 'ADD_DAILY_RECORD':

@@ -4,6 +4,7 @@ export interface DailyRecordEntry {
 }
 
 export interface UserInput {
+  userName: string;
   dailyRecords: { [date: string]: DailyRecordEntry };
   
   apiConnection: {

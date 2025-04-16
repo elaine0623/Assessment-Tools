@@ -77,24 +77,24 @@ export const useAIGeneration = () => {
       const dailyRecords = Object.values(state.userInput.dailyRecords)
       .sort((a, b) => b.date.localeCompare(a.date)); // 按日期降序排序
     
-// 處理 API 數據
-const apiPlatform = state.userInput.apiConnection.platform;
-const rawApiData = state.userInput.apiConnection.data;
-const processedApiData = processApiData(apiPlatform, rawApiData);
+      // 處理 API 數據
+      const apiPlatform = state.userInput.apiConnection.platform;
+      const rawApiData = state.userInput.apiConnection.data;
+      const processedApiData = processApiData(apiPlatform, rawApiData);
 
-// 構建輸入數據對象
-const inputData = {
-  dailyRecords,
-  apiData: processedApiData,
-  // apiPlatform,
-  fileData: state.userInput.fileUpload.data,
-  // 添加支援資訊，幫助 AI 理解數據來源
-  dataSources: {
-    hasDailyRecords: dailyRecords.length > 0,
-    hasApiData: !!processedApiData,
-    hasFileData: !!state.userInput.fileUpload.data
-  }
-};
+      // 構建輸入數據對象
+      const inputData = {
+        name: state.userInput.userName,
+        dailyRecords,
+        apiData: processedApiData,
+        fileData: state.userInput.fileUpload.data,
+        // 添加支援資訊，幫助 AI 理解數據來源
+        dataSources: {
+          hasDailyRecords: dailyRecords.length > 0,
+          hasApiData: !!processedApiData,
+          hasFileData: !!state.userInput.fileUpload.data
+        }
+      };
       // 調用AI生成服務
       const reportContent = await generateAIReport(inputData);
       

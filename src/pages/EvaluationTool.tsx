@@ -1,4 +1,5 @@
-import { Calendar, Database, FileText } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Database, FileText, Check } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { useAIGeneration } from '../hooks/useAIGeneration';
 import Header from '../components/layout/Header';
@@ -8,21 +9,35 @@ import ApiConnection from '../components/inputs/ApiConnection';
 import FileUpload from '../components/inputs/FileUpload';
 import ReportDisplay from '../components/outputs/ReportDisplay';
 
+
+
 const EvaluationTool: React.FC = () => {
   const { state, dispatch } = useData();
+  const [name, setName] = useState(state.userInput.userName);
   const { generateReport, isGenerating } = useAIGeneration();
 
   const handleTabChange = (tab: 'daily' | 'api' | 'file') => {
     dispatch({ type: 'SET_TAB', payload: tab });
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim()) {
+      dispatch({ type: 'SET_USER_NAME', payload: name.trim() });
+    }
+  };
+
+
+
   // 檢查是否有足夠資料可以生成報告
   const hasDataToGenerate = () => {
-    const hasDailyRecords = Object.keys(state.userInput.dailyRecords).length > 0;
+    if (!state.userInput.userName) {
+      return false;
+    }
 
+    const hasDailyRecords = Object.keys(state.userInput.dailyRecords).length > 0;
     const hasApiData = state.userInput.apiConnection.connected &&
       !!state.userInput.apiConnection.data;
-
     const hasFileData = state.userInput.fileUpload.uploaded &&
       state.userInput.fileUpload.parsed &&
       !!state.userInput.fileUpload.data;
@@ -34,6 +49,10 @@ const EvaluationTool: React.FC = () => {
   const getButtonTooltip = () => {
     if (isGenerating) {
       return "正在生成報告...";
+    }
+
+    if (!state.userInput.userName) {
+      return "請先輸入您的姓名";
     }
 
     if (!hasDataToGenerate()) {
@@ -53,8 +72,33 @@ const EvaluationTool: React.FC = () => {
       <main className="flex flex-col md:flex-row flex-1 overflow-hidden">
         {/* Left Panel - Input Options */}
         <div className="w-full md:w-1/2 p-6 overflow-y-auto border-r">
+          <h2 className="text-xl font-semibold mb-4">請輸入您的姓名</h2>
+          {!state.userInput.userName ? (
+            <form onSubmit={handleSubmit}>
+              <div className='flex justify-between mb-4'>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="請輸入姓名"
+                  className="w-1/2 px-4 py-2 border rounded-md"
+                  required
+                />
+                <button
+                  type="submit"
+                  className="w-1/5 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  確認
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-gray-700">{state.userInput.userName}</span>
+              <Check className="text-green-500" size={20} />
+            </div>
+          )}
           <h2 className="text-xl font-semibold mb-4">資料來源</h2>
-
           {/* Tabs */}
           <div className="flex border-b mb-4">
             <button
