@@ -1,66 +1,39 @@
 import React, { createContext, useReducer, useContext, useEffect } from 'react';
 import { AppState, GeneratedReport, TabType, DailyRecordEntry } from '../type';
+import { getDailyData } from '../services/apiService';
 
-
-const loadInitialState = (): AppState => {
-  try {
-    const savedDailyRecords = localStorage.getItem('dailyRecords');
-    const baseInitialState: AppState = {
-      currentTab: 'daily',
-      userInput: {
-        userName: '',
-        dailyRecords: {},
-        apiConnection: { platform: '', apiKey: '', token: '', connected: false },
-        fileUpload: { file: null, uploaded: false, parsed: false, data: null }
-      },
-      isGenerating: false,
-      generatedReports: [],
-      currentReport: null,
-      error: null
-    };
-    return {
-      ...baseInitialState,
-      userInput: {
-        ...baseInitialState.userInput,
-        dailyRecords: savedDailyRecords ? JSON.parse(savedDailyRecords) : {}
-      }
-    }
-  } catch (error) {
-    console.error('從 localStorage 加載數據時出錯:', error);
-    // 出錯時返回默認初始狀態
-    return {
-      currentTab: 'daily',
-      userInput: {
-        userName: '',
-        dailyRecords: {},
-        apiConnection: { platform: '', apiKey: '', token: '', connected: false },
-        fileUpload: { file: null, uploaded: false, parsed: false, data: null }
-      },
-      isGenerating: false,
-      generatedReports: [],
-      currentReport: null,
-      error: null
-    };
-  }
-}
-const initialState = loadInitialState();
-
+const getInitialState = (): AppState => ({
+  currentTab: 'daily',
+  userInput: {
+    userName: '',
+    job_name: '',
+    dailyRecords: {},
+    apiConnection: { platform: '', apiKey: '', token: '', connected: false },
+    fileUpload: { file: null, uploaded: false, parsed: false, data: null }
+  },
+  isGenerating: false,
+  generatedReports: [],
+  currentReport: null,
+  error: null
+});
 
 // 定義動作類型
-type Action =
+export type Action =
   | { type: 'SET_USER_NAME'; payload: string }
+  | { type: 'SET_USER_JOB'; payload: string }
   | { type: 'SET_TAB'; payload: TabType }
   | { type: 'ADD_DAILY_RECORD'; payload: DailyRecordEntry }
-  | { type: 'DELETE_DAILY_RECORD'; payload: string } // 日期
+  | { type: 'DELETE_DAILY_RECORD'; payload: string }
+  | { type: 'SET_DAILY_RECORDS'; payload: { [date: string]: DailyRecordEntry } }
   | { type: 'SET_PLATFORM'; payload: string }
   | { type: 'SET_API_KEY'; payload: string }
   | { type: 'SET_TOKEN_KEY'; payload: string }
   | { type: 'CONNECT_PLATFORM'; payload: boolean }
-  | { type: 'CONNECT_API_SUCCESS'; payload: { connected: boolean; data: any } } // 新增
-  | { type: 'SET_FILE'; payload: File | null } //File 對象本身，不包含文件內容
-  | { type: 'SET_FILE_UPLOADED'; payload: boolean } //標記文件是否已經被上傳到組件中
-  | { type: 'SET_FILE_DATA'; payload: any } //解析後的excel內容
-  | { type: 'SET_FILE_PARSED'; payload: boolean } //標記 Excel 文件是否已成功被解析
+  | { type: 'CONNECT_API_SUCCESS'; payload: { connected: boolean; data: any } }
+  | { type: 'SET_FILE'; payload: File | null }
+  | { type: 'SET_FILE_UPLOADED'; payload: boolean }
+  | { type: 'SET_FILE_DATA'; payload: any }
+  | { type: 'SET_FILE_PARSED'; payload: boolean }
   | { type: 'START_GENERATION' }
   | { type: 'GENERATION_SUCCESS'; payload: GeneratedReport }
   | { type: 'GENERATION_ERROR'; payload: string }
@@ -75,6 +48,22 @@ function dataReducer(state: AppState, action: Action): AppState {
         userInput: {
           ...state.userInput,
           userName: action.payload
+        }
+      };
+    case 'SET_USER_JOB':
+      return {
+        ...state,
+        userInput: {
+          ...state.userInput,
+          job_name: action.payload
+        }
+      };
+    case 'SET_DAILY_RECORDS':
+      return {
+        ...state,
+        userInput: {
+          ...state.userInput,
+          dailyRecords: action.payload
         }
       };
     case 'SET_TAB':
@@ -245,21 +234,32 @@ function dataReducer(state: AppState, action: Action): AppState {
 const DataContext = createContext<{
   state: AppState;
   dispatch: React.Dispatch<Action>;
-}>({ state: initialState, dispatch: () => null });
+}>({ state: getInitialState(), dispatch: () => null });
 
 // 創建Provider組件
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(dataReducer, initialState);
-  // 當狀態中的每日記錄時，更新 localStorage
+  const [state, dispatch] = useReducer(dataReducer, getInitialState());
+
+  // 當用戶名稱變化時，從資料庫獲取數據
   useEffect(() => {
-    try {
-      // 保存每日記錄
-      localStorage.setItem('dailyRecords', JSON.stringify(state.userInput.dailyRecords));
-    } catch (error) {
-      console.error('保存數據到 localStorage 時出錯:', error);
-    }
-  }, [state.userInput.dailyRecords]);
-  // console.log(state)
+    const fetchDailyRecords = async () => {
+      if (state.userInput.userName) {
+        try {
+          var dailyRecords = await getDailyData(state.userInput.userName);
+          var dailyRecords = dailyRecords.data
+          dispatch({
+            type: 'SET_DAILY_RECORDS',
+            payload: dailyRecords
+          });
+          console.log(dailyRecords)
+        } catch (error) {
+          console.error('獲取每日記錄時出錯:', error);
+        }
+      }
+    };
+
+    fetchDailyRecords();
+  }, [state.userInput.userName]);
 
   return (
     <DataContext.Provider value={{ state, dispatch }}>

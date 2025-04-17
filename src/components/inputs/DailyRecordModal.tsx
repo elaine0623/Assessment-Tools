@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import { formatDate } from '../../utils/formatters';
+import { saveDailyRecord, getDailyData } from '../../services/apiService';
 
 interface DailyRecordModalProps {
   date: string;
@@ -13,6 +14,8 @@ const DailyRecordModal: React.FC<DailyRecordModalProps> = ({ date, onClose }) =>
   const { state, dispatch } = useData();
   const existingRecord = state.userInput.dailyRecords[date];
   const [content, setContent] = useState(existingRecord?.content || '');
+  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Esc鍵關閉彈窗
@@ -24,72 +27,100 @@ const DailyRecordModal: React.FC<DailyRecordModalProps> = ({ date, onClose }) =>
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  const handleSave = () => {
-    if (content.trim()) {
-      dispatch({
-        type: 'ADD_DAILY_RECORD',
-        payload: { date, content }
-      });
-    } else if (existingRecord) {
-      // 如果內容為空且之前存在記錄，則刪除
-      dispatch({
-        type: 'DELETE_DAILY_RECORD',
-        payload: date
-      });
+  const handleSave = async () => {
+    if (!state.userInput.userName) {
+      setError('請先輸入您的姓名');
+      return;
     }
 
-    onClose();
+    setError(null);
+    setIsSaving(true);
+
+    try {
+      if (content.trim()) {
+        // 準備記錄數據
+        const recordData = {
+          name: state.userInput.userName,
+          job_name: state.userInput.job_name,
+          dailyRecords: [{
+            date,
+            content: content.trim()
+          }]
+        };
+
+        // 先調用 API 保存數據
+        await saveDailyRecord(recordData);
+        
+        // 重新獲取最新數據（包含 ID）
+        const updatedRecords = await getDailyData(state.userInput.userName);
+        
+        // 更新本地狀態
+        if (updatedRecords.data) {
+          dispatch({
+            type: 'SET_DAILY_RECORDS',
+            payload: updatedRecords.data
+          });
+        }
+      }
+
+      onClose();
+    } catch (err) {
+      console.error('保存記錄時出錯:', err);
+      setError('保存記錄時發生錯誤，請稍後再試');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const emptyInput = () => {
-    setContent('');
-  }
-
   return (
-    <div className="fixed inset-0 bg-[rgba(0,0,0,0.8)] flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-lg z-60">
+    <div className="fixed inset-0 bg-[rgba(0,0,0,0.8)] bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-lg">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium">{formatDate(date)}的工作記錄</h3>
-          <button onClick={onClose} className="p-1">
+          <h3 className="text-lg font-medium">
+            {formatDate(date)} 的工作記錄
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
             <X size={20} />
           </button>
         </div>
 
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         <textarea
-          className="w-full h-48 p-3 border rounded-md mb-4"
-          placeholder="請輸入這一天的工作內容..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          autoFocus
-        ></textarea>
+          placeholder="請輸入這天的工作內容..."
+          className="w-full h-40 p-3 border rounded-md mb-4"
+          disabled={isSaving}
+        />
 
-        <div className="flex justify-end space-x-2 ">
-          <div className='w-[68%]'>
-            <button
-              className="px-4 py-2 text-cyan-500 rounded-md cursor-pointer"
-              onClick={emptyInput}
-            >
-              一鍵清空
-            </button>
-          </div>
-
+        <div className="flex justify-end gap-2">
           <button
-            className="px-4 py-2 border rounded-md cursor-pointer"
             onClick={onClose}
+            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            disabled={isSaving}
           >
             取消
           </button>
           <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-md cursor-pointer"
             onClick={handleSave}
+            className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={isSaving}
           >
-            保存
+            {isSaving ? '保存中...' : '保存'}
           </button>
-
         </div>
       </div>
     </div>
-
   );
 };
 

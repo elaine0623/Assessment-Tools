@@ -95,6 +95,7 @@ export const useAIGeneration = () => {
           hasFileData: !!state.userInput.fileUpload.data
         }
       };
+
       // 調用AI生成服務
       const reportContent = await generateAIReport(inputData);
       

@@ -1,10 +1,12 @@
 export interface DailyRecordEntry {
+  id: number;
   date: string; // YYYY-MM-DD格式
   content: string;
 }
 
 export interface UserInput {
   userName: string;
+  job_name: string;
   dailyRecords: { [date: string]: DailyRecordEntry };
   
   apiConnection: {
@@ -115,3 +117,4 @@ export interface JiraData {
   projects: JiraProject[];
   issues: JiraIssue[]; // 使用者負責的問題
 }
+
