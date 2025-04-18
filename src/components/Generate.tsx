@@ -6,7 +6,7 @@ import { CircleArrowLeft } from 'lucide-react';
 
 const Generate: React.FC = () => {
     const navigate = useNavigate();
-    const { state, dispatch } = useData();
+    const { state } = useData();
     const [response, setResponse] = useState<any>(null);
     const [file, setFile] = useState<File | null>(null);
     const [jobName, setJobName] = useState(state.userInput.job_name);
