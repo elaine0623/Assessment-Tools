@@ -68,13 +68,13 @@ export const deleteDailyData = async (id: number) => {
 }; 
 
 interface ClearRecordsPayload {
-  yearMonth: string;  // Format: YYYY-MM
-  userName: string;
+  date: string;  // Format: YYYY-MM
+  name: string;
 }
 
 export const clearDailyRecords = async (payload: ClearRecordsPayload) => {
   try {
-    const response = await fetch(`${API_BASE_URL}api/cleardaily`, {
+    const response = await fetch(`${API_BASE_URL}api/deletemonth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

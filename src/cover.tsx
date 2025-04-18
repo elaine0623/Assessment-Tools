@@ -17,7 +17,7 @@ const Cover = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
         {/* 每日紀錄卡片 */}
-        <div className="bg-blue-900 text-white rounded-lg shadow-lg px-8 pt-20 pb-25 transform transition-transform duration-200 hover:-translate-y-2">
+        <div className="bg-gray-50 text-gray-800 rounded-lg shadow-lg px-8 pt-20 pb-25 transform transition-transform duration-200 hover:-translate-y-2 hover:bg-blue-900 hover:text-white">
           <h2 className="text-2xl font-bold mb-4">
             每日紀錄，輕鬆回顧工作點滴
           </h2>
@@ -34,7 +34,7 @@ const Cover = () => {
         </div>
 
         {/* AI 智能產出卡片 */}
-        <div className="bg-gray-50 text-gray-800 rounded-lg shadow-lg p-8 transform transition-transform duration-200 hover:-translate-y-2">
+        <div className="bg-gray-50 text-gray-800 rounded-lg shadow-lg p-8 transform transition-transform duration-200 hover:-translate-y-2  hover:bg-blue-900 hover:text-white">
           <h2 className="text-2xl font-bold mb-4">
             AI 智能產出，一秒生成考核文案
           </h2>
@@ -44,14 +44,14 @@ const Cover = () => {
           </p>
           <Link
             to="/ai-generation"
-            className="inline-block font-bold text-gray-800 hover:underline"
+            className="inline-block font-bold hover:underline"
           >
             瞭解更多 →
           </Link>
         </div>
 
         {/* 主管專區卡片 */}
-        <div className="bg-gray-50 text-gray-800 rounded-lg shadow-lg p-8 transform transition-transform duration-200 hover:-translate-y-2">
+        <div className="bg-gray-50 text-gray-800 rounded-lg shadow-lg p-8 transform transition-transform duration-200 hover:-translate-y-2  hover:bg-blue-900 hover:text-white">
           <h2 className="text-2xl font-bold mb-4">
             主管專區，精準建議一次到位
           </h2>
@@ -61,7 +61,7 @@ const Cover = () => {
           </p>
           <Link
             to="/manager"
-            className="inline-block font-bold text-gray-800 hover:underline"
+            className="inline-block font-bold hover:underline"
           >
             瞭解更多 →
           </Link>

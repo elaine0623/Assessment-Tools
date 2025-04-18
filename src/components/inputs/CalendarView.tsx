@@ -44,16 +44,18 @@ const CalendarView: React.FC = () => {
       const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const hasRecord = !!state.userInput.dailyRecords[dateString];
       const isFirstDay = day === 1;
+      const today = new Date();
+      const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
 
       days.push(
         <div
           key={dateString}
           className={`h-16 p-2 border-b border-r border-gray-400 relative cursor-pointer hover:bg-blue-50 ${
-            hasRecord ? 'bg-blue-50' : ''
+            hasRecord ? 'bg-blue-50' : isToday ? 'bg-gray-100' : ''
           }`}
           onClick={() => handleDateClick(dateString)}
         >
-          <div className="flex items-start">
+          <div className="flex content-center">
             <span className={`${hasRecord ? 'text-blue-600' : ''}`}>
               {isFirstDay ? `${month + 1}月${day}日` : day}
             </span>
