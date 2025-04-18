@@ -11,7 +11,7 @@ function App() {
     <DataProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Cover/>} />
+          <Route path="/Assessment-Tools" element={<Cover/>} />
           <Route path="/daily-record" element={<DailyRecord/>} />
           <Route path="/ai-generation" element={<Gernerate/>} />
           <Route path="/manager" element={<Manager/>} />
